@@ -1,0 +1,51 @@
+{
+  "name": "remittance",
+  "version": "1.0.0",
+  "description": "B9Lab Exercise",
+  "main": "index.js",
+  "directories": {
+    "lib": "lib",
+    "test": "test"
+  },
+  "scripts": {
+    "dev": "node server.js",
+    "build": "next build",
+    "start": "NODE_ENV=production node server.js"
+  },
+  "lint-staged": {
+    "*.{js,json}": [
+      "prettier --write --no-semi --single-quote --jsx-bracket-same-line",
+      "git add"
+    ]
+  },
+  "author": "Adam Soffer",
+  "license": "ISC",
+  "dependencies": {
+    "bluebird": "^3.5.1",
+    "ethjs": "^0.3.0",
+    "express": "^4.16.2",
+    "glamor": "^2.20.40",
+    "glamorous": "^4.11.0",
+    "next": "^4.1.4",
+    "next-routes": "^1.1.0",
+    "prop-types": "^15.6.0",
+    "react": "^16.0.0",
+    "react-dom": "^16.0.0",
+    "truffle-contract": "^3.0.1",
+    "web3": "^1.0.0-beta.24",
+    "zeppelin-solidity": "^1.4.0"
+  },
+  "devDependencies": {
+    "husky": "^0.14.3",
+    "lint-staged": "^4.3.0",
+    "prettier": "^1.7.4"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ads1018/Splitter.git"
+  },
+  "bugs": {
+    "url": "https://github.com/ads1018/Splitter/issues"
+  },
+  "homepage": "https://github.com/ads1018/Splitter#readme"
+}
