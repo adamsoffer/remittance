@@ -5,7 +5,6 @@ import web3 from '../lib/web3'
 import Main from '../lib/layout'
 import Button from '../components/Button'
 import Textfield from '../components/Textfield'
-import 'isomorphic-fetch'
 
 const Remittance = contract(remittanceArtifacts)
 
