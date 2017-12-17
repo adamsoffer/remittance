@@ -14,9 +14,20 @@ contract Remittance is Mortal {
 
   // Store funds in a mapping behind a hashed password so that the contract can
   // be used by anyone with an address
-  mapping(bytes32 => Fund) private funds;
+  mapping(bytes32 => Fund) public funds;
  
   Fund fund;
+
+  event LogDeposit(
+    address indexed sender,
+    address indexed beneficiary,
+    uint amount
+  );
+
+  event LogWithdraw(
+    address indexed recipient,
+    uint amount
+  );
   
   function deposit(address beneficiary, bytes32 hashedPassword) public payable returns (bool) {
     require(beneficiary != 0);
@@ -34,6 +45,7 @@ contract Remittance is Mortal {
       claimed: false
     });
 
+    LogDeposit(msg.sender, beneficiary, msg.value);
     return true;
   }
 
@@ -60,6 +72,8 @@ contract Remittance is Mortal {
     fund.claimed = true;
 
     msg.sender.transfer(amount);
+
+    LogWithdraw(msg.sender, amount);
 
     return true;
   }

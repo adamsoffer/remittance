@@ -32,7 +32,7 @@
     "react": "^16.0.0",
     "react-dom": "^16.0.0",
     "truffle-contract": "^3.0.1",
-    "web3": "^1.0.0-beta.24",
+    "web3": "^1.0.0-beta.26",
     "zeppelin-solidity": "^1.4.0"
   },
   "devDependencies": {
@@ -42,10 +42,10 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/ads1018/Splitter.git"
+    "url": "git+https://github.com/ads1018/remittance.git"
   },
   "bugs": {
-    "url": "https://github.com/ads1018/Splitter/issues"
+    "url": "https://github.com/ads1018/remittance/issues"
   },
-  "homepage": "https://github.com/ads1018/Splitter#readme"
+  "homepage": "https://github.com/ads1018/remittance#readme"
 }
