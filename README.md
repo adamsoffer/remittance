@@ -1,4 +1,4 @@
-# Splitter
+# Remittance
 
 ## Requirements
 
