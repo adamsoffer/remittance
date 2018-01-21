@@ -15,13 +15,15 @@ contract('Remittance', function(accounts) {
   })
 
   describe('deposit()', async function() {
-    it('should deposit 2 ether to beneficary', async function() {
+    it('should deposit 2 ether to the fund', async function() {
       contractBalanceBefore = await web3.eth.getBalance(remittance.address)
       let fundAmountBeforeDeposit = await remittance.funds(hashedPassword)
-      let tx = await remittance.deposit(accounts[1], hashedPassword, {
+
+      await remittance.deposit(accounts[1], hashedPassword, {
         from: accounts[0],
         value: deposit
       })
+
       let fundAmountAfterDeposit = await remittance.funds(hashedPassword)
       assert.strictEqual(
         (Number(fundAmountBeforeDeposit[2]) + Number(deposit)).toString(10),
@@ -42,9 +44,11 @@ contract('Remittance', function(accounts) {
     it('should withdraw 2 ether from the fund', async function() {
       contractBalanceBefore = await web3.eth.getBalance(remittance.address)
       let fundAmountBeforeWithdrawal = await remittance.funds(hashedPassword)
-      let tx = await remittance.withdraw(password1, password2, {
+
+      await remittance.withdraw(password1, password2, {
         from: accounts[1]
       })
+
       let fundAmountAfterWithdrawal = await remittance.funds(hashedPassword)
       assert.strictEqual(
         (Number(fundAmountBeforeWithdrawal[2]) - Number(deposit)).toString(10),

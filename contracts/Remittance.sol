@@ -8,8 +8,6 @@ contract Remittance is Mortal {
     address beneficiary;
     address sender;
     uint amount;
-    bool exists; // used to check whether a key is already mapped
-    bool claimed;
   }
 
   // Store funds in a mapping behind a hashed password so that the contract can
@@ -32,17 +30,15 @@ contract Remittance is Mortal {
   function deposit(address beneficiary, bytes32 hashedPassword) public payable returns (bool) {
     require(beneficiary != 0);
     
-    // Prevents fund from being overwritten
-    require(!funds[hashedPassword].exists);
+    // Prevents fund from being overwritten by making sure fund doesn't already exist
+    require(funds[hashedPassword].sender == 0);
 
     require(msg.value > 0);
     
     funds[hashedPassword] = Fund({
       beneficiary: beneficiary,
       sender: msg.sender,
-      amount: msg.value,
-      exists: true,
-      claimed: false
+      amount: msg.value
     });
 
     LogDeposit(msg.sender, beneficiary, msg.value, this.balance);
@@ -57,10 +53,11 @@ contract Remittance is Mortal {
     // of the local variable actually write to the state.
     Fund storage fund = funds[key];
 
+    // Check whether the fund exists
+    require(fund.sender != 0);
+
     // Make sure no one has already claimed the fund
-    require(!fund.claimed);
-    
-    require(fund.exists);
+    require(fund.amount != 0);
 
     // Only the beneficiary specified in the fund can claim
     require(msg.sender == fund.beneficiary);
@@ -70,7 +67,6 @@ contract Remittance is Mortal {
     require(amount > 0);
 
     fund.amount = 0;
-    fund.claimed = true;
 
     msg.sender.transfer(amount);
 
