@@ -15,18 +15,18 @@ contract Remittance is Mortal {
   // Store funds in a mapping behind a hashed password so that the contract can
   // be used by anyone with an address
   mapping(bytes32 => Fund) public funds;
- 
-  Fund fund;
 
   event LogDeposit(
     address indexed sender,
     address indexed beneficiary,
-    uint amount
+    uint amount,
+    uint contractBalance
   );
 
   event LogWithdraw(
     address indexed recipient,
-    uint amount
+    uint amount,
+    uint contractBalance
   );
   
   function deposit(address beneficiary, bytes32 hashedPassword) public payable returns (bool) {
@@ -45,16 +45,17 @@ contract Remittance is Mortal {
       claimed: false
     });
 
-    LogDeposit(msg.sender, beneficiary, msg.value);
+    LogDeposit(msg.sender, beneficiary, msg.value, this.balance);
     return true;
   }
 
   function withdraw(string password1, string password2) public returns (bool) {
     bytes32 key = keccak256(password1, password2);
 
-    // variable is declared outside of function scope as to avoid
-    // overwriting storage. (assigns by reference otherwise)
-    fund = funds[key];
+    // Struct type, Fund, is assigned to a local variable (of the default storage data location).
+    // This does not copy the struct but only stores a reference so that assignments to members
+    // of the local variable actually write to the state.
+    Fund storage fund = funds[key];
 
     // Make sure no one has already claimed the fund
     require(!fund.claimed);
@@ -73,7 +74,7 @@ contract Remittance is Mortal {
 
     msg.sender.transfer(amount);
 
-    LogWithdraw(msg.sender, amount);
+    LogWithdraw(msg.sender, amount, this.balance);
 
     return true;
   }
