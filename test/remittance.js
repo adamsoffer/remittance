@@ -3,9 +3,12 @@ const Remittance = artifacts.require('./Remittance.sol')
 
 contract('Remittance', function(accounts) {
   let deposit = web3.utils.toWei('2', 'ether')
-  let password1 = 'b9labs'
-  let password2 = 'rules'
-  let hashedPassword = web3.utils.soliditySha3(password1 + password2)
+  let password1 = web3.utils.fromAscii('b9labs')
+  let password2 = web3.utils.fromAscii('rules')
+  let hashedPassword = web3.utils.soliditySha3(
+    { t: 'bytes32', v: password1 },
+    { t: 'bytes32', v: password2 }
+  )
   let remittance
   let contractBalanceBefore
   let contractBalanceAfter
@@ -51,8 +54,8 @@ contract('Remittance', function(accounts) {
 
       let fundAmountAfterWithdrawal = await remittance.funds(hashedPassword)
       assert.strictEqual(
-        (Number(fundAmountBeforeWithdrawal[2]) - Number(deposit)).toString(10),
-        fundAmountAfterWithdrawal[2].toString(10)
+        fundAmountAfterWithdrawal[2].toString(10),
+        (Number(fundAmountBeforeWithdrawal[2]) - Number(deposit)).toString(10)
       )
     })
     it('should withdraw 2 ether from the contract', async function() {

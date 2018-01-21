@@ -45,7 +45,7 @@ contract Remittance is Mortal {
     return true;
   }
 
-  function withdraw(string password1, string password2) public returns (bool) {
+  function withdraw(bytes32 password1, bytes32 password2) public returns (bool) {
     bytes32 key = keccak256(password1, password2);
 
     // Struct type, Fund, is assigned to a local variable (of the default storage data location).
