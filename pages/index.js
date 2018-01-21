@@ -29,9 +29,12 @@ export default class extends React.Component {
     event.preventDefault()
     let deposit = web3.utils.toWei(event.target.deposit.value, 'ether')
     let beneficiary = event.target.beneficiary.value
-    let password1 = event.target.password1.value
-    let password2 = event.target.password2.value
-    let hashedPassword = web3.utils.soliditySha3(password1 + password2)
+    let password1 = web3.utils.fromAscii(event.target.password1.value)
+    let password2 = web3.utils.fromAscii(event.target.password2.value)
+    let hashedPassword = web3.utils.soliditySha3(
+      { t: 'bytes32', v: password1 },
+      { t: 'bytes32', v: password2 }
+    )
 
     Remittance.deployed()
       .then(instance => {
@@ -54,8 +57,8 @@ export default class extends React.Component {
 
   withdraw(event) {
     event.preventDefault()
-    let password1 = event.target.password1.value
-    let password2 = event.target.password2.value
+    let password1 = web3.utils.fromAscii(event.target.password1.value)
+    let password2 = web3.utils.fromAscii(event.target.password2.value)
 
     Remittance.deployed()
       .then(instance => {
