@@ -18,11 +18,13 @@ if (typeof web3.eth.getBlockPromise !== 'function') {
 Remittance.setProvider(web3.currentProvider)
 
 export default class extends React.Component {
-  static async getInitialProps({ pathname }) {
-    const accounts = await web3.eth.getAccounts()
-    return {
-      accounts
-    }
+  componentDidMount() {
+    this.setAccount()
+  }
+
+  async setAccount() {
+    let accounts = await web3.eth.getAccounts()
+    this.setState({ account: accounts[0] })
   }
 
   deposit(event) {
@@ -39,7 +41,7 @@ export default class extends React.Component {
     Remittance.deployed()
       .then(instance => {
         return instance.deposit.sendTransaction(beneficiary, hashedPassword, {
-          from: this.props.accounts[0],
+          from: this.state.account,
           value: deposit
         })
       })
@@ -61,9 +63,12 @@ export default class extends React.Component {
     let password2 = web3.utils.fromAscii(event.target.password2.value)
 
     Remittance.deployed()
-      .then(instance => {
+      .then(async instance => {
+        let gasPrice = await web3.eth.getGasPrice()
         return instance.withdraw.sendTransaction(password1, password2, {
-          from: this.props.accounts[0]
+          from: this.state.account,
+          gas: '1500000',
+          gasPrice
         })
       })
       .then(function(txHashes) {
