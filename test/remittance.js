@@ -30,7 +30,7 @@ contract('Remittance', function(accounts) {
       contractBalanceBefore = await web3.eth.getBalance(remittance.address)
       let fundAmountBeforeDeposit = await remittance.funds(hashedPassword1)
 
-      await remittance.deposit(accounts[1], hashedPassword1, {
+      await remittance.deposit(accounts[1], password1, password2, {
         from: accounts[0],
         value: deposit
       })
@@ -80,7 +80,7 @@ contract('Remittance', function(accounts) {
       contractBalanceBefore = await web3.eth.getBalance(remittance.address)
       let fundAmountBeforeDeposit = await remittance.funds(hashedPassword2)
 
-      await remittance.deposit(accounts[1], hashedPassword2, {
+      await remittance.deposit(accounts[1], password3, password4, {
         from: accounts[0],
         value: deposit
       })

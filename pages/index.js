@@ -31,19 +31,22 @@ export default class extends React.Component {
     event.preventDefault()
     let deposit = web3.utils.toWei(event.target.deposit.value, 'ether')
     let beneficiary = event.target.beneficiary.value
+    let deadline = event.target.deadline.value
     let password1 = web3.utils.fromAscii(event.target.password1.value)
     let password2 = web3.utils.fromAscii(event.target.password2.value)
-    let hashedPassword = web3.utils.soliditySha3(
-      { t: 'bytes32', v: password1 },
-      { t: 'bytes32', v: password2 }
-    )
 
     Remittance.deployed()
       .then(instance => {
-        return instance.deposit.sendTransaction(beneficiary, hashedPassword, {
-          from: this.state.account,
-          value: deposit
-        })
+        return instance.deposit.sendTransaction(
+          beneficiary,
+          deadline,
+          password1,
+          password2,
+          {
+            from: this.state.account,
+            value: deposit
+          }
+        )
       })
       .then(function(txHashes) {
         console.log('pending confirmation...')
@@ -83,15 +86,42 @@ export default class extends React.Component {
       })
   }
 
+  reclaim(event) {
+    event.preventDefault()
+    let password1 = web3.utils.fromAscii(event.target.password1.value)
+    let password2 = web3.utils.fromAscii(event.target.password2.value)
+
+    Remittance.deployed()
+      .then(async instance => {
+        let gasPrice = await web3.eth.getGasPrice()
+        return instance.reclaim.sendTransaction(password1, password2, {
+          from: this.state.account,
+          gas: '1500000',
+          gasPrice
+        })
+      })
+      .then(function(txHashes) {
+        console.log('pending confirmation...')
+        return web3.eth.getTransactionReceiptMined(txHashes)
+      })
+      .then(function(receipts) {
+        console.log('confirmed')
+      })
+      .catch(e => {
+        console.log(e)
+      })
+  }
+
   render() {
     return (
       <Main>
         <div style={{ maxWidth: '500px', margin: '50px auto 0 auto' }}>
           <h1 style={{ fontSize: '32px', marginBottom: '20px' }}>Remittance</h1>
-          <form onSubmit={this.deposit.bind(this)}>
-            <h2 style={{ fontSize: '32px', marginBottom: '20px' }}>Deposit</h2>
+          <form onSubmit={this.deposit.bind(this)} style={{ marginBottom: '30px' }}>
+            <h2 style={{ fontSize: '24px', marginBottom: '20px' }}>Deposit</h2>
             <Textfield label="Password 1" type="password" name="password1" />
             <Textfield label="Password 2" type="password" name="password2" />
+            <Textfield label="Deadline" type="datetime-local" />
             <Textfield
               placeholder="ex: 10"
               step="any"
@@ -107,11 +137,19 @@ export default class extends React.Component {
             />
             <Button type="submit">Deposit</Button>
           </form>
-          <form onSubmit={this.withdraw.bind(this)}>
-            <h2 style={{ fontSize: '32px', marginBottom: '20px' }}>Withdraw</h2>
+          <form onSubmit={this.withdraw.bind(this)} style={{ marginBottom: '30px' }}>
+            <h2 style={{ fontSize: '24px', marginBottom: '20px' }}>Withdraw</h2>
             <Textfield label="Password 1" type="password" name="password1" />
             <Textfield label="Password 2" type="password" name="password2" />
             <Button type="submit">Withdraw</Button>
+          </form>
+          <form onSubmit={this.reclaim.bind(this)}>
+            <h2 style={{ fontSize: '24px', marginBottom: '20px' }}>
+              Reclaim Funds
+            </h2>
+            <Textfield label="Password 1" type="password" name="password1" />
+            <Textfield label="Password 2" type="password" name="password2" />
+            <Button type="submit">Reclaim</Button>
           </form>
         </div>
       </Main>
