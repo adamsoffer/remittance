@@ -1,7 +1,11 @@
 const web3 = require('../lib/web3')
 const Remittance = artifacts.require('./Remittance.sol')
+const addEvmFunctions = require('../lib/evmFunctions.js')
 
 contract('Remittance', function(accounts) {
+  
+  addEvmFunctions(web3)
+
   let deposit = web3.utils.toWei('2', 'ether')
   let password1 = web3.utils.fromAscii('b9labs')
   let password2 = web3.utils.fromAscii('rules')
@@ -75,31 +79,13 @@ contract('Remittance', function(accounts) {
     })
   })
 
-  describe('deposit()', async function() {
-    it('should send 2 Ether from Alice to Bob with hash 2', async function() {
-      contractBalanceBefore = await web3.eth.getBalance(remittance.address)
-      let fundAmountBeforeDeposit = await remittance.funds(hashedPassword2)
-
-      await remittance.deposit(accounts[1], password3, password4, {
-        from: accounts[0],
-        value: deposit
-      })
-
-      let fundAmountAfterDeposit = await remittance.funds(hashedPassword2)
-      assert.strictEqual(
-        (Number(fundAmountBeforeDeposit[2]) + Number(deposit)).toString(10),
-        fundAmountAfterDeposit[2].toString(10)
-      )
-    })
-  })
-
-  describe('withdraw()', async function() {
-    it('should withdraw 2 ether for bob with *hash1* (Xavier - indeed this fails)', async function() {
+  describe('reclaim()', async function() {
+    it('should reclaim 2 ether after the deadline passes', async function() {
       contractBalanceBefore = await web3.eth.getBalance(remittance.address)
       let fundAmountBeforeWithdrawal = await remittance.funds(hashedPassword1)
 
-      await remittance.withdraw(password1, password2, {
-        from: accounts[1]
+      await remittance.reclaim(password1, password2, {
+        from: accounts[0]
       })
 
       let fundAmountAfterWithdrawal = await remittance.funds(hashedPassword1)
