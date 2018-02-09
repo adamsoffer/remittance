@@ -105,7 +105,6 @@ contract('Remittance', function(accounts) {
 
   describe('reclaim()', async function() {
     it('should reclaim 2 ether after the deadline passes', async function() {
-      let fundAmountBeforeDeposit = await remittance.funds(hashedPassword2)
       let deadline = Math.floor(Date.now() / 1000) + 3600 // 1 hour from now
       await remittance.deposit(accounts[1], deadline, password3, password4, {
         from: accounts[0],
@@ -114,22 +113,53 @@ contract('Remittance', function(accounts) {
       let contractBalanceBeforeReclaim = await web3.eth.getBalance(
         remittance.address
       )
-      let fundAmountAfterDeposit = await remittance.funds(hashedPassword2)
-      assert.strictEqual(
-        (Number(fundAmountBeforeDeposit[2]) + Number(deposit)).toString(10),
-        fundAmountAfterDeposit[2].toString(10)
+      let fundAmountBeforeReclaim = await remittance.funds(hashedPassword2)
+
+      let aliceAccountBalanceBeforeReclaim = await web3.eth.getBalance(
+        accounts[0]
       )
 
-      let fundAmountBeforeReclaim = await remittance.funds(hashedPassword2)
-      await web3.evm.increaseTimePromise(3600)
-      await remittance.reclaim(password3, password4, {
-        from: accounts[0]
+      await web3.evm.increaseTimePromise(4000)
+      let gasPrice = await web3.eth.getGasPrice()
+      let tx = await remittance.reclaim(password3, password4, {
+        from: accounts[0],
+        gas: '1500000',
+        gasPrice
       })
+
+      gasCost = web3.utils
+        .toBN(gasPrice)
+        .mul(web3.utils.toBN(tx.receipt.gasUsed))
 
       let fundAmountAfterReclaim = await remittance.funds(hashedPassword2)
       assert.strictEqual(
         fundAmountAfterReclaim[2].toString(10),
         (Number(fundAmountBeforeReclaim[2]) - Number(deposit)).toString(10)
+      )
+
+      let contractBalanceAfterReclaim = await web3.eth.getBalance(
+        remittance.address
+      )
+      assert.strictEqual(
+        deposit.toString(10),
+        (contractBalanceBeforeReclaim - contractBalanceAfterReclaim).toString(
+          10
+        )
+      )
+
+      let aliceAccountBalanceAfterReclaim = await web3.eth.getBalance(
+        accounts[0]
+      )
+
+      assert.strictEqual(
+        web3.utils
+          .toBN(aliceAccountBalanceBeforeReclaim)
+          .add(web3.utils.toBN(deposit))
+          .toString(10),
+        web3.utils
+          .toBN(aliceAccountBalanceAfterReclaim)
+          .add(gasCost)
+          .toString(10)
       )
     })
   })
