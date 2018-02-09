@@ -1,6 +1,7 @@
 import React from 'react'
 import { default as contract } from 'truffle-contract'
 import Promise from 'bluebird'
+import moment from 'moment'
 import remittanceArtifacts from '../build/contracts/Remittance.json'
 import web3 from '../lib/web3'
 import Main from '../lib/layout'
@@ -31,7 +32,7 @@ export default class extends React.Component {
     event.preventDefault()
     let deposit = web3.utils.toWei(event.target.deposit.value, 'ether')
     let beneficiary = event.target.beneficiary.value
-    let deadline = event.target.deadline.value
+    let deadline = moment(event.target.deadline.value).unix()
     let password1 = web3.utils.fromAscii(event.target.password1.value)
     let password2 = web3.utils.fromAscii(event.target.password2.value)
 
@@ -117,11 +118,13 @@ export default class extends React.Component {
       <Main>
         <div style={{ maxWidth: '500px', margin: '50px auto 0 auto' }}>
           <h1 style={{ fontSize: '32px', marginBottom: '20px' }}>Remittance</h1>
-          <form onSubmit={this.deposit.bind(this)} style={{ marginBottom: '30px' }}>
+          <form
+            onSubmit={this.deposit.bind(this)}
+            style={{ marginBottom: '30px' }}>
             <h2 style={{ fontSize: '24px', marginBottom: '20px' }}>Deposit</h2>
             <Textfield label="Password 1" type="password" name="password1" />
             <Textfield label="Password 2" type="password" name="password2" />
-            <Textfield label="Deadline" type="datetime-local" />
+            <Textfield label="Deadline" type="datetime-local" name="deadline" />
             <Textfield
               placeholder="ex: 10"
               step="any"
@@ -137,7 +140,9 @@ export default class extends React.Component {
             />
             <Button type="submit">Deposit</Button>
           </form>
-          <form onSubmit={this.withdraw.bind(this)} style={{ marginBottom: '30px' }}>
+          <form
+            onSubmit={this.withdraw.bind(this)}
+            style={{ marginBottom: '30px' }}>
             <h2 style={{ fontSize: '24px', marginBottom: '20px' }}>Withdraw</h2>
             <Textfield label="Password 1" type="password" name="password1" />
             <Textfield label="Password 2" type="password" name="password2" />

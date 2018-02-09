@@ -1,10 +1,12 @@
+const Promise = require('bluebird')
 const web3 = require('../lib/web3')
 const Remittance = artifacts.require('./Remittance.sol')
 const addEvmFunctions = require('../lib/evmFunctions.js')
 
 contract('Remittance', function(accounts) {
-  
   addEvmFunctions(web3)
+  Promise.promisifyAll(web3.eth, { suffix: 'Promise' })
+  Promise.promisifyAll(web3.evm, { suffix: 'Promise' })
 
   let deposit = web3.utils.toWei('2', 'ether')
   let password1 = web3.utils.fromAscii('b9labs')
@@ -13,7 +15,6 @@ contract('Remittance', function(accounts) {
     { t: 'bytes32', v: password1 },
     { t: 'bytes32', v: password2 }
   )
-
   let password3 = web3.utils.fromAscii('hello')
   let password4 = web3.utils.fromAscii('world')
   let hashedPassword2 = web3.utils.soliditySha3(
@@ -33,8 +34,8 @@ contract('Remittance', function(accounts) {
     it('should send 2 Ether from Alice to Bob with hash 1', async function() {
       contractBalanceBefore = await web3.eth.getBalance(remittance.address)
       let fundAmountBeforeDeposit = await remittance.funds(hashedPassword1)
-
-      await remittance.deposit(accounts[1], password1, password2, {
+      let deadline = Math.floor(Date.now() / 1000) + 3600 // 1 hour from now
+      await remittance.deposit(accounts[1], deadline, password1, password2, {
         from: accounts[0],
         value: deposit
       })
@@ -80,18 +81,40 @@ contract('Remittance', function(accounts) {
   })
 
   describe('reclaim()', async function() {
-    it('should reclaim 2 ether after the deadline passes', async function() {
+    it('should send another 2 Ether from Alice to Bob with hash 1', async function() {
       contractBalanceBefore = await web3.eth.getBalance(remittance.address)
-      let fundAmountBeforeWithdrawal = await remittance.funds(hashedPassword1)
+      let fundAmountBeforeDeposit = await remittance.funds(hashedPassword2)
+      let deadline = Math.floor(Date.now() / 1000) + 3600 // 1 hour from now
+      await remittance.deposit(accounts[1], deadline, password3, password4, {
+        from: accounts[0],
+        value: deposit
+      })
 
-      await remittance.reclaim(password1, password2, {
+      let fundAmountAfterDeposit = await remittance.funds(hashedPassword2)
+      assert.strictEqual(
+        (Number(fundAmountBeforeDeposit[2]) + Number(deposit)).toString(10),
+        fundAmountAfterDeposit[2].toString(10)
+      )
+    })
+
+    it('should reclaim 2 ether after the deadline passes', async function() {
+      let contractBalanceBefore = await web3.eth.getBalance(remittance.address)
+      let fundAmountBeforeReclaim = await remittance.funds(hashedPassword2)
+      let result = await web3.evm.increaseTimePromise(4000)
+      await remittance.reclaim(password3, password4, {
         from: accounts[0]
       })
 
-      let fundAmountAfterWithdrawal = await remittance.funds(hashedPassword1)
+      let fundAmountAfterReclaim = await remittance.funds(hashedPassword2)
       assert.strictEqual(
-        fundAmountAfterWithdrawal[2].toString(10),
-        (Number(fundAmountBeforeWithdrawal[2]) - Number(deposit)).toString(10)
+        fundAmountAfterReclaim[2].toString(10),
+        (Number(fundAmountBeforeReclaim[2]) - Number(deposit)).toString(10)
+      )
+
+      let contractBalanceAfter = await web3.eth.getBalance(remittance.address)
+      assert.strictEqual(
+        deposit.toString(10),
+        (contractBalanceBefore - contractBalanceAfter).toString(10)
       )
     })
   })
