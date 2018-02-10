@@ -35,19 +35,13 @@ export default class extends React.Component {
     let deadline = moment(event.target.deadline.value).unix()
     let password1 = web3.utils.fromAscii(event.target.password1.value)
     let password2 = web3.utils.fromAscii(event.target.password2.value)
-
     Remittance.deployed()
-      .then(instance => {
-        return instance.deposit.sendTransaction(
-          beneficiary,
-          deadline,
-          password1,
-          password2,
-          {
-            from: this.state.account,
-            value: deposit
-          }
-        )
+      .then(async instance => {
+        let hash = await remittance.generateHash(password1, password2)
+        return instance.deposit.sendTransaction(beneficiary, deadline, hash, {
+          from: this.state.account,
+          value: deposit
+        })
       })
       .then(function(txHashes) {
         console.log('pending confirmation...')
@@ -65,7 +59,6 @@ export default class extends React.Component {
     event.preventDefault()
     let password1 = web3.utils.fromAscii(event.target.password1.value)
     let password2 = web3.utils.fromAscii(event.target.password2.value)
-
     Remittance.deployed()
       .then(async instance => {
         let gasPrice = await web3.eth.getGasPrice()
@@ -94,8 +87,9 @@ export default class extends React.Component {
 
     Remittance.deployed()
       .then(async instance => {
+        let hash = await remittance.generateHash(password1, password2)
         let gasPrice = await web3.eth.getGasPrice()
-        return instance.reclaim.sendTransaction(password1, password2, {
+        return instance.reclaim.sendTransaction(hash, {
           from: this.state.account,
           gas: '1500000',
           gasPrice

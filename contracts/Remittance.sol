@@ -33,21 +33,23 @@ contract Remittance is Mortal {
     uint amount,
     uint contractBalance
   );
+
+  function generateHash(bytes32 password1, bytes32 password2) public pure returns (bytes32) {
+    return keccak256(password1, password2);
+  }
   
-  function deposit(address beneficiary, uint256 deadline, bytes32 password1, bytes32 password2) public payable returns (bool) {
+  function deposit(address beneficiary, uint256 deadline, bytes32 hash) public payable returns (bool) {
     require(beneficiary != 0);
-    
-    bytes32 hashedPassword = keccak256(password1, password2);
 
     // Prevent fund from being overwritten by ensuring it doesn't already exist
-    require(funds[hashedPassword].sender == 0);
+    require(funds[hash].sender == 0);
 
     // Ensure deadline is set to sometime in the future
     require(deadline > now);
 
     require(msg.value > 0);
     
-    funds[hashedPassword] = Fund({
+    funds[hash] = Fund({
       beneficiary: beneficiary,
       sender: msg.sender,
       amount: msg.value,
@@ -59,12 +61,12 @@ contract Remittance is Mortal {
   }
 
   function withdraw(bytes32 password1, bytes32 password2) public returns (bool) {
-    bytes32 key = keccak256(password1, password2);
-
+    bytes32 hash = this.generateHash(password1, password2);
+    
     // Struct type, Fund, is assigned to a local variable (of the default storage data location).
     // This does not copy the struct but only stores a reference so that assignments to members
     // of the local variable actually write to the state.
-    Fund storage fund = funds[key];
+    Fund storage fund = funds[hash];
 
     // Ensure the fund exists
     require(fund.sender != 0);
@@ -95,10 +97,8 @@ contract Remittance is Mortal {
   /**
   * Allows sender to reclaim the funds if the deadline is passed.
   */
-  function reclaim(bytes32 password1, bytes32 password2) public returns (bool) {
-    bytes32 key = keccak256(password1, password2);
-
-    Fund storage fund = funds[key];
+  function reclaim(bytes32 hash) public returns (bool) {
+    Fund storage fund = funds[hash];
 
     // Ensure the fund exists
     require(fund.sender != 0);
