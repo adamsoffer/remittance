@@ -70,7 +70,7 @@ contract Remittance is Mortal {
     require(fund.sender != 0);
 
     // Ensure the deadline hasn't past
-    require(now < fund.deadline);
+    require(now <= fund.deadline);
 
     // Ensure no one has already claimed the fund
     require(fund.amount != 0);
@@ -104,7 +104,7 @@ contract Remittance is Mortal {
     require(fund.sender != 0);
 
     // Ensure the deadline is passed
-    require(now > fund.deadline);
+    require(now >= fund.deadline);
 
     // Ensure no one has already claimed the fund
     require(fund.amount != 0);
