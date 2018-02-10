@@ -19,19 +19,19 @@ contract Remittance is Mortal {
     address indexed sender,
     address indexed beneficiary,
     uint amount,
-    uint contractBalance
+    bytes32 hash
   );
 
   event LogWithdraw(
     address indexed recipient,
     uint amount,
-    uint contractBalance
+    bytes32 hash
   );
 
   event LogReclaim(
     address indexed recipient,
     uint amount,
-    uint contractBalance
+    bytes32 hash
   );
 
   function generateHash(bytes32 password1, bytes32 password2) public pure returns (bytes32) {
@@ -56,7 +56,7 @@ contract Remittance is Mortal {
       deadline: deadline
     });
 
-    LogDeposit(msg.sender, beneficiary, msg.value, this.balance);
+    LogDeposit(msg.sender, beneficiary, msg.value, hash);
     return true;
   }
 
@@ -88,7 +88,7 @@ contract Remittance is Mortal {
 
     msg.sender.transfer(amount);
 
-    LogWithdraw(msg.sender, amount, this.balance);
+    LogWithdraw(msg.sender, amount, hash);
 
     return true;
   }
@@ -120,7 +120,7 @@ contract Remittance is Mortal {
 
     msg.sender.transfer(amount);
 
-    LogReclaim(msg.sender, amount, this.balance);
+    LogReclaim(msg.sender, amount, hash);
 
     return true;
   }
