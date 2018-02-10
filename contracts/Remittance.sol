@@ -35,7 +35,7 @@ contract Remittance is Mortal {
   );
 
   /**
-    * Allows sender to reclaim the funds if the deadline is passed.
+    * Generates hash for client side applications and testing
     */
   function generateHash(bytes32 password1, bytes32 password2) public pure returns (bytes32) {
     return keccak256(password1, password2);
