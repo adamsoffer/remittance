@@ -5,7 +5,6 @@ const addEvmFunctions = require('../lib/evmFunctions.js')
 
 contract('Remittance', function(accounts) {
   addEvmFunctions(web3)
-  Promise.promisifyAll(web3.eth, { suffix: 'Promise' })
   Promise.promisifyAll(web3.evm, { suffix: 'Promise' })
 
   let deposit = web3.utils.toWei('2', 'ether')
