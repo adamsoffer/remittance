@@ -8,10 +8,10 @@ contract('Remittance', function(accounts) {
   Promise.promisifyAll(web3.evm, { suffix: 'Promise' })
 
   let deposit = web3.utils.toWei('2', 'ether')
-  let password1 = web3.utils.fromAscii('b9labs')
-  let password2 = web3.utils.fromAscii('rules')
-  let password3 = web3.utils.fromAscii('hello')
-  let password4 = web3.utils.fromAscii('world')
+  let password1 = 'b9labs'
+  let password2 = 'rules'
+  let password3 = 'hello'
+  let password4 = 'world'
 
   let hash1
   let hash2

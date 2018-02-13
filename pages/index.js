@@ -33,8 +33,8 @@ export default class extends React.Component {
     let deposit = web3.utils.toWei(event.target.deposit.value, 'ether')
     let beneficiary = event.target.beneficiary.value
     let deadline = moment(event.target.deadline.value).unix()
-    let password1 = web3.utils.fromAscii(event.target.password1.value)
-    let password2 = web3.utils.fromAscii(event.target.password2.value)
+    let password1 = event.target.password1.value
+    let password2 = event.target.password2.value
     Remittance.deployed()
       .then(async instance => {
         let hash = await remittance.generateHash(password1, password2)
@@ -57,8 +57,8 @@ export default class extends React.Component {
 
   withdraw(event) {
     event.preventDefault()
-    let password1 = web3.utils.fromAscii(event.target.password1.value)
-    let password2 = web3.utils.fromAscii(event.target.password2.value)
+    let password1 = event.target.password1.value
+    let password2 = event.target.password2.value
     Remittance.deployed()
       .then(async instance => {
         let gasPrice = await web3.eth.getGasPrice()
@@ -82,8 +82,8 @@ export default class extends React.Component {
 
   reclaim(event) {
     event.preventDefault()
-    let password1 = web3.utils.fromAscii(event.target.password1.value)
-    let password2 = web3.utils.fromAscii(event.target.password2.value)
+    let password1 = event.target.password1.value
+    let password2 = event.target.password2.value
 
     Remittance.deployed()
       .then(async instance => {
