@@ -70,8 +70,9 @@ contract Remittance is Mortal {
     // Ensure the fund exists
     require(fund.sender != 0);
 
-    // Anyone except for the depositer is allowed to withdraw the funds
-    // (The depositer can use the reclaim function after the deadline passes)
+    // Anyone in possession of the two passwords *except* for the original 
+    // depositer is allowed to withdraw the funds (the depositer can use the
+    // reclaim function after the deadline passes if no one withdraws the fund).
     require(fund.sender != msg.sender);
 
     // Ensure the deadline hasn't past
