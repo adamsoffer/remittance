@@ -19,19 +19,19 @@ contract Remittance is Mortal {
     address indexed sender,
     address indexed beneficiary,
     uint amount,
-    bytes32 hash
+    bytes32 indexed hash
   );
 
   event LogWithdraw(
     address indexed recipient,
     uint amount,
-    bytes32 hash
+    bytes32 indexed hash
   );
 
   event LogReclaim(
     address indexed recipient,
     uint amount,
-    bytes32 hash
+    bytes32 indexed hash
   );
 
   /**
