@@ -28,22 +28,17 @@ contract('Remittance', function(accounts) {
       let contractBalanceBefore = await web3.eth.getBalance(remittance.address)
       let fundAmountBeforeDeposit = await remittance.funds(hash1)
       let deadline = Math.floor(Date.now() / 1000) + 3600 // 1 hour from now
-      await remittance.deposit(accounts[1], deadline, hash1, {
+      await remittance.deposit(deadline, hash1, {
         from: accounts[0],
         value: deposit
       })
 
       let fundAmountAfterDeposit = await remittance.funds(hash1)
       assert.strictEqual(
-        (Number(fundAmountBeforeDeposit[2]) + Number(deposit)).toString(10),
-        fundAmountAfterDeposit[2].toString(10)
+        (Number(fundAmountBeforeDeposit[1]) + Number(deposit)).toString(10),
+        fundAmountAfterDeposit[1].toString(10)
       )
       let contractBalanceAfter = await web3.eth.getBalance(remittance.address)
-      assert.strictEqual(
-        deposit.toString(10),
-        (contractBalanceAfter - contractBalanceBefore).toString(10)
-      )
-      contractBalanceAfter = await web3.eth.getBalance(remittance.address)
       assert.strictEqual(
         deposit.toString(10),
         (contractBalanceAfter - contractBalanceBefore).toString(10)
@@ -54,7 +49,7 @@ contract('Remittance', function(accounts) {
   describe('withdraw()', async function() {
     it('should withdraw 2 ether for bob', async function() {
       let deadline = Math.floor(Date.now() / 1000) + 3600 // 1 hour from now
-      await remittance.deposit(accounts[1], deadline, hash1, {
+      await remittance.deposit(deadline, hash1, {
         from: accounts[0],
         value: deposit
       })
@@ -74,8 +69,8 @@ contract('Remittance', function(accounts) {
 
       let fundAmountAfterWithdrawal = await remittance.funds(hash1)
       assert.strictEqual(
-        fundAmountAfterWithdrawal[2].toString(10),
-        (Number(fundAmountBeforeWithdrawal[2]) - Number(deposit)).toString(10)
+        fundAmountAfterWithdrawal[1].toString(10),
+        (Number(fundAmountBeforeWithdrawal[1]) - Number(deposit)).toString(10)
       )
       let contractBalanceAfter = await web3.eth.getBalance(remittance.address)
       assert.strictEqual(
@@ -101,7 +96,7 @@ contract('Remittance', function(accounts) {
   describe('reclaim()', async function() {
     it('should reclaim 2 ether after the deadline passes', async function() {
       let deadline = Math.floor(Date.now() / 1000) + 3600 // 1 hour from now
-      await remittance.deposit(accounts[1], deadline, hash2, {
+      await remittance.deposit(deadline, hash2, {
         from: accounts[0],
         value: deposit
       })
@@ -129,8 +124,8 @@ contract('Remittance', function(accounts) {
 
       let fundAmountAfterReclaim = await remittance.funds(hash2)
       assert.strictEqual(
-        fundAmountAfterReclaim[2].toString(10),
-        (Number(fundAmountBeforeReclaim[2]) - Number(deposit)).toString(10)
+        fundAmountAfterReclaim[1].toString(10),
+        (Number(fundAmountBeforeReclaim[1]) - Number(deposit)).toString(10)
       )
 
       let contractBalanceAfterReclaim = await web3.eth.getBalance(

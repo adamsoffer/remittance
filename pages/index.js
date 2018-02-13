@@ -31,14 +31,13 @@ export default class extends React.Component {
   deposit(event) {
     event.preventDefault()
     let deposit = web3.utils.toWei(event.target.deposit.value, 'ether')
-    let beneficiary = event.target.beneficiary.value
     let deadline = moment(event.target.deadline.value).unix()
     let password1 = event.target.password1.value
     let password2 = event.target.password2.value
     Remittance.deployed()
       .then(async instance => {
         let hash = await remittance.generateHash(password1, password2)
-        return instance.deposit.sendTransaction(beneficiary, deadline, hash, {
+        return instance.deposit.sendTransaction(deadline, hash, {
           from: this.state.account,
           value: deposit
         })
@@ -125,12 +124,6 @@ export default class extends React.Component {
               label="Deposit Amount"
               type="number"
               name="deposit"
-            />
-            <Textfield
-              placeholder="ie: 0x22B544D19fFe43c6083327271D9F39020da30C65"
-              label="Beneficiary address"
-              type="text"
-              name="beneficiary"
             />
             <Button type="submit">Deposit</Button>
           </form>

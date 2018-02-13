@@ -5,7 +5,6 @@ import "./Mortal.sol";
 
 contract Remittance is Mortal {
   struct Fund {
-    address beneficiary;
     address sender;
     uint amount;
     uint256 deadline;
@@ -17,7 +16,6 @@ contract Remittance is Mortal {
 
   event LogDeposit(
     address indexed sender,
-    address indexed beneficiary,
     uint amount,
     bytes32 indexed hash
   );
@@ -41,8 +39,7 @@ contract Remittance is Mortal {
     return keccak256(password1, password2);
   }
   
-  function deposit(address beneficiary, uint256 deadline, bytes32 hash) public payable returns (bool) {
-    require(beneficiary != 0);
+  function deposit(uint256 deadline, bytes32 hash) public payable returns (bool) {
 
     // Prevent fund from being overwritten by ensuring it doesn't already exist
     require(funds[hash].sender == 0);
@@ -53,13 +50,12 @@ contract Remittance is Mortal {
     require(msg.value > 0);
     
     funds[hash] = Fund({
-      beneficiary: beneficiary,
       sender: msg.sender,
       amount: msg.value,
       deadline: deadline
     });
 
-    LogDeposit(msg.sender, beneficiary, msg.value, hash);
+    LogDeposit(msg.sender, msg.value, hash);
     return true;
   }
 
@@ -74,14 +70,15 @@ contract Remittance is Mortal {
     // Ensure the fund exists
     require(fund.sender != 0);
 
+    // Anyone except for the depositer is allowed to withdraw the funds
+    // (The depositer can use the reclaim function after the deadline passes)
+    require(fund.sender != msg.sender);
+
     // Ensure the deadline hasn't past
     require(now <= fund.deadline);
 
     // Ensure no one has already claimed the fund
     require(fund.amount != 0);
-
-    // Ensure that only the beneficiary specified in the fund can claim
-    require(msg.sender == fund.beneficiary);
     
     uint amount = fund.amount;
     
