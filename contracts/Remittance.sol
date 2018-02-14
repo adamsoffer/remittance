@@ -35,8 +35,8 @@ contract Remittance is Mortal {
   /**
     * Generates hash for client side applications and testing
     */
-  function generateHash(bytes32 password1, bytes32 password2) public pure returns (bytes32) {
-    return keccak256(password1, password2);
+  function generateHash(bytes32 password1, bytes32 password2, address beneficiary) public pure returns (bytes32) {
+    return keccak256(password1, password2, beneficiary);
   }
   
   function deposit(uint256 deadline, bytes32 hash) public payable returns (bool) {
@@ -60,7 +60,7 @@ contract Remittance is Mortal {
   }
 
   function withdraw(bytes32 password1, bytes32 password2) public returns (bool) {
-    bytes32 hash = keccak256(password1, password2);
+    bytes32 hash = keccak256(password1, password2, msg.sender);
     
     // Struct type, Fund, is assigned to a local variable (of the default storage data location).
     // This does not copy the struct but only stores a reference so that assignments to members

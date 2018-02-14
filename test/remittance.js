@@ -19,8 +19,8 @@ contract('Remittance', function(accounts) {
 
   beforeEach('should deploy Remittance', async function() {
     remittance = await Remittance.new({ from: accounts[0] })
-    hash1 = await remittance.generateHash(password1, password2)
-    hash2 = await remittance.generateHash(password3, password4)
+    hash1 = await remittance.generateHash(password1, password2, accounts[1])
+    hash2 = await remittance.generateHash(password3, password4, accounts[1])
   })
 
   describe('deposit()', async function() {
