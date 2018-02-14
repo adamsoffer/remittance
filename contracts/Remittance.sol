@@ -44,8 +44,8 @@ contract Remittance is Mortal {
     // Prevent fund from being overwritten by ensuring it doesn't already exist
     require(funds[hash].sender == 0);
 
-    // Ensure deadline is set to sometime in the future
-    require(deadline > now);
+    // Ensure deadline is set to sometime in the future, but not too far into the future (no more than 5 years)
+    require(deadline > now && deadline < now + 157700000);
 
     require(msg.value > 0);
     
