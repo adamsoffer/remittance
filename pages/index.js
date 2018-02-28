@@ -21,6 +21,7 @@ Remittance.setProvider(web3.currentProvider)
 export default class extends React.Component {
   componentDidMount() {
     this.setAccount()
+    this.onWithdraw()
   }
 
   async setAccount() {
@@ -37,7 +38,7 @@ export default class extends React.Component {
     let password2 = event.target.password2.value
     Remittance.deployed()
       .then(async instance => {
-        let hash = await remittance.generateHash(
+        let hash = await instance.generateHash(
           password1,
           password2,
           beneficiary
@@ -84,6 +85,19 @@ export default class extends React.Component {
       })
   }
 
+  onWithdraw() {
+    return Remittance.deployed().then(async instance => {
+      let event = instance.LogWithdraw({}, { fromBlock: 0, toBlock: 'latest' })
+      event.watch(async (error, e) => {
+        if (!error) {
+          console.log(e.args.amount.toString(10), e.args.ownersFee.toString(10))
+        } else {
+          console.log(error)
+        }
+      })
+    })
+  }
+
   reclaim(event) {
     event.preventDefault()
     let password1 = event.target.password1.value
@@ -91,7 +105,11 @@ export default class extends React.Component {
 
     Remittance.deployed()
       .then(async instance => {
-        let hash = await remittance.generateHash(password1, password2)
+        let hash = await instance.generateHash(
+          password1,
+          password2,
+          this.state.account
+        )
         let gasPrice = await web3.eth.getGasPrice()
         return instance.reclaim.sendTransaction(hash, {
           from: this.state.account,

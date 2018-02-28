@@ -1,5 +1,4 @@
 const Promise = require('bluebird')
-const web3 = require('../lib/web3')
 const Remittance = artifacts.require('./Remittance.sol')
 const addEvmFunctions = require('../lib/evmFunctions.js')
 

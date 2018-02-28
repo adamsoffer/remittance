@@ -1,9 +1,12 @@
 pragma solidity ^0.4.4;
 
+import "zeppelin-solidity/contracts/math/SafeMath.sol";
 import "./Mortal.sol";
 
 
 contract Remittance is Mortal {
+  using SafeMath for uint;
+
   struct Fund {
     address sender;
     uint amount;
@@ -14,6 +17,8 @@ contract Remittance is Mortal {
   // be used by anyone with an address
   mapping(bytes32 => Fund) public funds;
 
+   uint constant PERCENTAGE_CUT = 1;
+
   event LogDeposit(
     address indexed sender,
     uint amount,
@@ -23,7 +28,8 @@ contract Remittance is Mortal {
   event LogWithdraw(
     address indexed recipient,
     uint amount,
-    bytes32 indexed hash
+    bytes32 indexed hash,
+    uint ownersFee
   );
 
   event LogReclaim(
@@ -82,14 +88,20 @@ contract Remittance is Mortal {
     require(fund.amount != 0);
     
     uint amount = fund.amount;
+
+    uint ownersFee = amount.mul(PERCENTAGE_CUT).div(100);
     
+    uint amountMinusOwnersFee = amount.sub(ownersFee);
+
     require(amount > 0);
 
     fund.amount = 0;
 
-    msg.sender.transfer(amount);
+    msg.sender.transfer(amountMinusOwnersFee);
 
-    LogWithdraw(msg.sender, amount, hash);
+    owner.transfer(ownersFee);
+
+    LogWithdraw(msg.sender, amountMinusOwnersFee, hash, ownersFee);
 
     return true;
   }

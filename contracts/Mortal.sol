@@ -2,7 +2,7 @@ pragma solidity ^0.4.4;
 
 
 contract Mortal {
-  address private owner;
+  address owner;
 
   modifier onlyOwner {
     require(msg.sender == owner);
