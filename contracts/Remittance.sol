@@ -89,11 +89,11 @@ contract Remittance is Mortal {
     
     uint amount = fund.amount;
 
+    require(amount > 0);
+
     uint ownersFee = amount.mul(PERCENTAGE_CUT).div(100);
     
     uint amountMinusOwnersFee = amount.sub(ownersFee);
-
-    require(amount > 0);
 
     fund.amount = 0;
 
