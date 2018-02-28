@@ -17,7 +17,9 @@ contract Remittance is Mortal {
   // be used by anyone with an address
   mapping(bytes32 => Fund) public funds;
 
-   uint constant PERCENTAGE_CUT = 1;
+  uint constant PERCENTAGE_CUT = 1;
+
+  uint ownersBalance = 0;
 
   event LogDeposit(
     address indexed sender,
@@ -30,6 +32,10 @@ contract Remittance is Mortal {
     uint amount,
     bytes32 indexed hash,
     uint ownersFee
+  );
+
+  event LogOwnersBalanceWithdraw(
+    uint amount
   );
 
   event LogReclaim(
@@ -97,9 +103,9 @@ contract Remittance is Mortal {
 
     fund.amount = 0;
 
+    ownersBalance.add(ownersFee);
+    
     msg.sender.transfer(amountMinusOwnersFee);
-
-    owner.transfer(ownersFee);
 
     LogWithdraw(msg.sender, amountMinusOwnersFee, hash, ownersFee);
 
@@ -135,6 +141,15 @@ contract Remittance is Mortal {
 
     LogReclaim(msg.sender, amount, hash);
 
+    return true;
+  }
+
+  function withdrawOwnersBalance() public returns (bool) {
+    require(msg.sender == owner);
+    require(ownersBalance > 0);
+    uint balance = ownersBalance;
+    ownersBalance = 0;
+    msg.sender.transfer(balance);
     return true;
   }
 
