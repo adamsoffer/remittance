@@ -35,7 +35,8 @@ contract Remittance is Mortal {
   );
 
   event LogOwnersBalanceWithdraw(
-    uint amount
+    uint amount,
+    address indexed recipient
   );
 
   event LogReclaim(
