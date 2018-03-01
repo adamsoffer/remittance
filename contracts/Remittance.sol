@@ -150,6 +150,7 @@ contract Remittance is Mortal {
     uint balance = ownerBalances[msg.sender];
     ownerBalances[msg.sender] = 0;
     msg.sender.transfer(balance);
+    LogOwnersBalanceWithdraw(balance, msg.sender);
     return true;
   }
 
