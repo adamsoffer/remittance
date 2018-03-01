@@ -19,7 +19,7 @@ contract Remittance is Mortal {
 
   uint constant PERCENTAGE_CUT = 1;
 
-  uint ownersBalance = 0;
+  mapping(address => uint) public ownerBalances;
 
   event LogDeposit(
     address indexed sender,
@@ -103,8 +103,8 @@ contract Remittance is Mortal {
 
     fund.amount = 0;
 
-    ownersBalance.add(ownersFee);
-    
+    ownerBalances[owner].add(ownersFee);
+
     msg.sender.transfer(amountMinusOwnersFee);
 
     LogWithdraw(msg.sender, amountMinusOwnersFee, hash, ownersFee);
@@ -145,10 +145,9 @@ contract Remittance is Mortal {
   }
 
   function withdrawOwnersBalance() public returns (bool) {
-    require(msg.sender == owner);
-    require(ownersBalance > 0);
-    uint balance = ownersBalance;
-    ownersBalance = 0;
+    require(ownerBalances[msg.sender] > 0);
+    uint balance = ownerBalances[msg.sender];
+    ownerBalances[msg.sender] = 0;
     msg.sender.transfer(balance);
     return true;
   }
